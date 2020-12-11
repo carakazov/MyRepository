@@ -1,7 +1,9 @@
 ﻿﻿using System;
 using System.Collections.Generic;
 using System.Linq;
-using MySocialNetwork.DAO;
+ using System.Web;
+ using Microsoft.Ajax.Utilities;
+ using MySocialNetwork.DAO;
 using MySocialNetwork.DTO;
 using MySocialNetwork.Models.SocialNetwork;
 
@@ -9,6 +11,7 @@ namespace MySocialNetwork.Utils
 {
     public class Mapper
     {
+        private ContentMapper contentMapper = new ContentMapper();
         public User FromRegistrationDtoToUser(RegistrationDto registrationDto)
         {
             User user = new User()
@@ -143,6 +146,8 @@ namespace MySocialNetwork.Utils
             {
                 Id = post.Id,
                 Rating = post.Rating,
+                HostId = post.HostId,
+                OriginalPostId = post.OriginalPostId,
                 PostingDate = post.PostingDate,
                 UserInfo = FromUserAuthorDto(post.Author),
                 WallId = post.WallId,
@@ -150,11 +155,11 @@ namespace MySocialNetwork.Utils
             };
             foreach (Content content in post.Content)
             {
-                if (content.ContentTypeId == 1)
+                if (content.ContentType.Title == ContentTypes.Image.ToString().ToLower())
                 {
                     postDto.Photos.Add(content.Material);
                 }
-                else if (content.ContentTypeId == 2)
+                else if (content.ContentType.Title == ContentTypes.Audio.ToString().ToLower())
                 {
                     postDto.Sounds.Add(content.Material);
                 }
@@ -163,33 +168,45 @@ namespace MySocialNetwork.Utils
                     postDto.Videos.Add(content.Material);
                 }
             }
+
+            if (post.Comments.Count > 0)
+            {
+                foreach (Post comment in post.Comments)
+                {
+                    PostDto newComment = FromPostToPostDto(comment);
+                    postDto.Comments.Add(newComment);
+                }
+            }
+
+            if (post.OriginalPostId != null)
+            {
+                PostDto originalPost = FromPostToPostDto(post.OriginalPost);
+                postDto.OriginalPost = originalPost;
+            }
             return postDto;
         }
-
-        public Post FromPostDtoToPost(PostDto postDto)
-        {
-            Post post = new Post()
-            {
-                AuthorId = postDto.UserInfo.Id,
-                WallId = postDto.WallId,
-                PostingDate = postDto.PostingDate,
-                Text = postDto.Text
-            };
-            return post;
-        }
-
+        
         public Post FromInputPostDtoToPost(InputPostDto inputPostDto)
         {
             Post post = new Post()
             {
                 AuthorId = inputPostDto.AuthorId,
                 Rating = 0,
-                Text = inputPostDto.Text,
                 PostingDate = DateTime.Now,
-                WallId = inputPostDto.WallId
+                WallId = inputPostDto.WallId,
             };
+            if (inputPostDto.Text == null)
+            {
+                post.Text = "";
+            }
+            else
+            {
+                post.Text = inputPostDto.Text;
+            }
             return post;
         }
+        
+        
 
         public ScoredPost FromScoredPostDtoToScoredPost(ScoredPostDto scoredPostDto)
         {

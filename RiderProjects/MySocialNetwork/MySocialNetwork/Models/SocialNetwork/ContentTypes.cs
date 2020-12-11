@@ -2,8 +2,8 @@
 {
     public enum ContentTypes
     {
-        image,
-        video,
-        sound
+        Image,
+        Video,
+        Audio
     }
 }

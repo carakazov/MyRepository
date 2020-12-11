@@ -38,6 +38,26 @@ namespace MySocialNetwork.DAO
             return requests;
         }
 
+        public void ChangeType(int newTypeId, int friendId, int userId)
+        {
+            using (DbContextTransaction transaction = dbContext.Database.BeginTransaction())
+            {
+                try
+                {
+                    Friendship oldFriendship = dbContext.Friendships
+                        .Where(f => f.UserId == userId && f.FriendId == friendId).First();
+                    oldFriendship.TypeId = newTypeId;
+                    dbContext.SaveChanges();
+                    transaction.Commit();
+                }
+                catch
+                {
+                    transaction.Rollback();
+                    throw;
+                }
+            }
+        }
+        
         public void AddFriendshipType(string typeTitle, int ownerId)
         {
             FriendshipType type = new FriendshipType()
@@ -57,11 +77,13 @@ namespace MySocialNetwork.DAO
             {
                 try
                 {
+                    FriendshipType commonType = dbContext.FriendshipTypes
+                        .Where(ft => ft.TypeOwnerId == userId && ft.Title == "common").First();
                     Friendship friendship = new Friendship()
                     {
                         UserId = userId,
                         FriendId = friendId,
-                        TypeId = null
+                        TypeId = commonType.Id
                     };
                     dbContext.Friendships.Add(friendship);
                     dbContext.SaveChanges();
@@ -79,14 +101,27 @@ namespace MySocialNetwork.DAO
             }
         }
 
+        public List<FriendshipType> GetTypesOfUser(int userId)
+        {
+            List<FriendshipType> types = dbContext.FriendshipTypes.Where(ft => ft.TypeOwnerId == userId).ToList();
+            foreach (FriendshipType type in types)
+            {
+                List<Friendship> friendships =
+                    dbContext.Friendships.Where(f => f.TypeId == type.Id).Include(f => f.Friend).ToList();
+                type.Friendships = friendships;
+            }
+
+            return types;
+        }
+        
         private Friendship ReverseFriendship(Friendship friendship)
         {
-            //FriendshipType commonType = FindFriendshipType(friendship.UserId, "common");
+            FriendshipType commonType = FindFriendshipType(friendship.FriendId, "common");
             Friendship reverseFriendship = new Friendship()
             {
                 UserId = friendship.FriendId,
                 FriendId = friendship.UserId,
-                TypeId = null
+                TypeId = commonType.Id
             };
             return reverseFriendship;
         }

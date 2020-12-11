@@ -1,5 +1,7 @@
-﻿@using MySocialNetwork.DTO
+﻿@using Microsoft.Ajax.Utilities
+@using MySocialNetwork.DTO
 @using MySocialNetwork.Models.SocialNetwork
+@using MySocialNetwork.Utils.Helpers
 @model MySocialNetwork.DTO.WallDto
 
 @{
@@ -8,49 +10,30 @@
 }
 
 @{
-    foreach (PostDto post in Model.Posts)
+    if (Model.Posts.Count > 0)
     {
-        <div>
-            <p>
-                @Html.ActionLink(post.UserInfo.FirstName + " " + post.UserInfo.SecondName, "PrivatePage", new {login = post.UserInfo.Login})
-            </p>
-            <p>
-                @post.Text
-            </p>
-            <p>
-                @Html.Label("Post's rating: ")
-                @post.Rating
-                @using(Ajax.BeginForm("ScorePost", new {postId = post.Id, wallId = post.WallId, type = ScoreTypes.Positive, userId = userDto.Id}, new AjaxOptions() {UpdateTargetId = "wall"}))
-                {
-                    if (!scoredPostIds.Contains(post.Id))
-                    {
-                        <input type="submit" value="Like"/>   
-                    }
-                }
-                @using(Ajax.BeginForm("ScorePost", new {postId = post.Id, wallId = post.WallId, type = ScoreTypes.Negative, userId = userDto.Id}, new AjaxOptions() {UpdateTargetId = "wall"}))
-                {
-                    if (!scoredPostIds.Contains(post.Id))
-                    {
-                        <input type="submit" value="Dislike"/>   
-                    }
-                }
-            </p>
-            <p>
-                @{
-                    if (post.Photos.Count > 0)
-                    {
-                        //Html helper here
-                    }
-                    if (post.Videos.Count > 0)
-                    {
-                        //Html helper here
-                    }
-                    if (post.Sounds.Count > 0)
-                    {
-                        //Html helper here
-                    }
-                }
-            </p>
-        </div>
+      foreach (PostDto post in Model.Posts)
+          {
+              if (post.HostId == null)
+              {
+                  Html.RenderAction("RenderPost", new {postDto = post});
+              }
+              if (post.OriginalPostId != null)
+              {
+                  @post.OriginalPostId
+                  <div id="originalPostArea">
+                      <label>This is repost</label>
+                      @using (Ajax.BeginForm("ShowRePost", new {originalId = post.OriginalPostId},
+                          new AjaxOptions() {UpdateTargetId = "originalPostArea"}))
+                      {
+                          <input type="submit" value="Show original"/>
+                      }
+                  </div>
+              }
+          }  
+    }
+    else
+    {
+        <label>No posts here</label>
     }
 }

@@ -2,12 +2,6 @@
 @using MySocialNetwork.DTO
 @model MySocialNetwork.DTO.UserDto
 
-<style type="text/css">
-    #wall{
-        overflow: auto;
-    } 
-</style>
-
 @{
     UserDto currentUser = (UserDto) Session["session"];
     int currentWallId = Model.Walls.Where(m => m.WallType == WallTypes.Main.ToString()).First().Id;
@@ -53,12 +47,12 @@
 }
 
 
+
 <div id="wall">
-        @{ Html.RenderAction("Wall", new { wallId = currentWallId });
-        }
+        @{ Html.RenderAction("Wall", new { wallId = currentWallId }); }
 </div>
 
 
 <div>
-    @{Html.RenderAction("PostingForm", new { wallId = currentWallId }); }
+    @{Html.RenderAction("PostingForm", new { wallId = currentWallId, onlyImage = false }); }
 </div>

@@ -1,8 +1,9 @@
 ﻿@using MySocialNetwork.DTO
-@model MySocialNetwork.DTO.UserInfoDto
+@model MySocialNetwork.DTO.DialogDto
 @{
-    string linkText = Model.FirstName + " " + Model.SecondName;
+    string linkText = Model.User.FirstName + " " + Model.User.SecondName;
     UserDto currentUser = (UserDto) Session["session"];
+    int currentWallId = Model.WallId;
 }
 <!DOCTYPE html>
 
@@ -13,16 +14,22 @@
 <body>
 <div>
     <label>
-        @Html.ActionLink(linkText, "PrivatePage", "Page", new {login = Model.Login}, null)
+        @Html.ActionLink(linkText, "PrivatePage", "Page", new {login = Model.User.Login}, null)
     </label>
 </div>
 <div>
     <label>Messages</label>
-    <div id="messagesZone">
+    <div id="wall">
         @{
-            Html.RenderAction("ShowMessages", new {firstUserId = Model.Id, secondUserId = currentUser.Id});
+            Html.RenderAction("Wall","Page", new {wallId = currentWallId});
         }
+    </div>
+    <div>
+        @{Html.RenderAction("PostingForm", "Page",new { wallId = currentWallId, onlyImage = false }); }
     </div>
 </div>
 </body>
+<script type="text/javascript">
+    alert('@Model.WallId')
+</script>
 </html>

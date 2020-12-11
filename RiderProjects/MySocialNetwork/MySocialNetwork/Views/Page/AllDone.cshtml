@@ -1,11 +1,8 @@
-﻿@model MySocialNetwork.DTO.FindUsersDto
+﻿@using MySocialNetwork.Utils.Helpers
 
 @{
     ViewBag.Title = "title";
+    string test = ViewData["test"].ToString();
 }
-@Model.FirstName
-@Model.SecondName
-@Model.MiddleName
-@Model.MinAge
-@Model.MaxAge
+@test
 <h2>All done corectly!</h2>

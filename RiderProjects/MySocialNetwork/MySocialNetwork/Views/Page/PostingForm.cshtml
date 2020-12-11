@@ -1,12 +1,18 @@
 ﻿@model MySocialNetwork.DTO.InputPostDto
 <div>
-    @using (Ajax.BeginForm("Post",new {wallId = Model.WallId},new AjaxOptions(){UpdateTargetId = "wall"}))
+    @using (Ajax.BeginForm("Post", new {wallId = Model.WallId}, new AjaxOptions(){UpdateTargetId = "wall"}, new {enctype="multipart/form-data"}))
     {
+        if (!Model.OnlyImage)
+        {
+            <div>
+                <p>
+                    @Html.Label("Input your message: ")
+                    @Html.TextAreaFor(model => model.Text)
+                </p>
+            </div>
+        }
         <div>
-            <p>
-                @Html.Label("Input your message: ")
-                @Html.TextAreaFor(model => model.Text)
-            </p>
+            <input type="file" name="Media"/>
         </div>
         <div>
             <input type="submit" value="Post"/>

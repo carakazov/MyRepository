@@ -16,6 +16,8 @@ namespace MySocialNetwork.DTO
         public int Rating { get; set; }
         public int Age { get; set; }
         
+        public List<FriendshipDto> Friendships { get; set; }
+        
         public List<WallDto> Walls { get; set; }
         public List<ScoredPostDto> ScoredPosts { get; set; }
         

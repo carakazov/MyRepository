@@ -1,0 +1,24 @@
+﻿@using MySocialNetwork.DTO
+@model MySocialNetwork.DTO.UserDto
+@{
+    UserDto currentUser = (UserDto) Session["session"];
+}
+
+<!DOCTYPE html>
+
+<html>
+<head>
+    <title>Groups</title>
+</head>
+<body>
+<div>
+    <h1>Your groups</h1>
+    <div id="groupsList">
+        @{Html.RenderAction("GroupsList", new {userId = currentUser.Id});}
+    </div>
+    <div>
+        @{Html.RenderAction("CreateGroup");}
+    </div>
+</div>
+</body>
+</html>

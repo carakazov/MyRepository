@@ -1,4 +1,5 @@
-﻿using MySocialNetwork.DAO;
+﻿using System.Collections.Generic;
+using MySocialNetwork.DAO;
 using MySocialNetwork.DTO;
 using MySocialNetwork.Utils;
 
@@ -10,6 +11,16 @@ namespace MySocialNetwork.Services
         private Mapper mapper = new Mapper();
         private DialogManager dialogManager = new DialogManager();
         private UserManager userManager = new UserManager();
+
+        public DialogDto GetDialogDto(string login, int firstUserId, int secondUserId)
+        {
+            DialogDto dialogDto = new DialogDto()
+            {
+                User = GetTalker(login),
+                WallId = GetDialogWallId(firstUserId, secondUserId)
+            };
+            return dialogDto;
+        }
         
         public int GetDialogWallId(int firstUserId, int secondUserId)
         {
@@ -18,11 +29,11 @@ namespace MySocialNetwork.Services
             {
                 if (firstUserId < secondUserId)
                 {
-                    wallId = dialogManager.OpenDialog(firstUserId, secondUserId).Id;
+                    wallId = dialogManager.OpenDialog(firstUserId, secondUserId).WallId;
                 }
                 else
                 {
-                    wallId = dialogManager.OpenDialog(secondUserId, firstUserId).Id;
+                    wallId = dialogManager.OpenDialog(secondUserId, firstUserId).WallId;
                 }
             }
             catch
@@ -32,6 +43,11 @@ namespace MySocialNetwork.Services
             return wallId;
         }
 
+        public List<RePostingPoint> GetPoints(string login)
+        {
+            return dialogManager.GetRePostingPoints(login);
+        }
+        
         public UserInfoDto GetTalker(string talkerLogin)
         {
             User user = userManager.GetUserByLogin(talkerLogin);

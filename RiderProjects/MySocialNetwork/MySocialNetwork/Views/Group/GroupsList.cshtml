@@ -1,0 +1,11 @@
+﻿@using MySocialNetwork.DTO
+@model IEnumerable<MySocialNetwork.DTO.GroupDto>
+<div>
+    <div>
+        @foreach (GroupDto groupDto in Model)
+        {
+            @groupDto.Title
+        }
+    </div>
+</div>
+

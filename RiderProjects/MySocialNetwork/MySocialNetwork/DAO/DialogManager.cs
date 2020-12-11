@@ -2,6 +2,7 @@
 using System.Data.Entity;
 using System.Linq;
 using System.Web.UI;
+using MySocialNetwork.DTO;
 
 namespace MySocialNetwork.DAO
 {
@@ -9,6 +10,7 @@ namespace MySocialNetwork.DAO
     {
         private SocialNetworkDbContext dbContext = new SocialNetworkDbContext();
         private PageManager pageManager = new PageManager();
+        private UserManager userManager = new UserManager();
         public Dialog OpenDialog(int firstUserId, int secondUserId)
         {
             Dialog dialog;
@@ -30,14 +32,12 @@ namespace MySocialNetwork.DAO
             }
             return dialog;
         }
-
+        
         private Dialog LoadDialog(int firstUserId, int secondUserId)
         {
-             Dialog dialog = dbContext.Dialogs
-                .Where(d => d.FirstUserId == firstUserId && d.SecondUserId == secondUserId)
-                /*.Include(d => d.SecondUser)
-                .Include(d => d.FirstUser)*/.Include(d => d.Wall).First();
-            IEnumerable<Post> posts = dbContext.Posts.Where(p => p.WallId == dialog.Wall.Id);
+            Dialog dialog = dbContext.Dialogs.Where(d => d.FirstUserId == firstUserId && d.SecondUserId == secondUserId)
+                .Include(d => d.Wall).First();
+            IEnumerable<Post> posts = pageManager.GetPostsOfWall(dialog.WallId);
             dialog.Wall.Posts = posts.ToList();
             return dialog;
         }
@@ -48,16 +48,17 @@ namespace MySocialNetwork.DAO
             {
                 try
                 {
+                    Wall wall = pageManager.CreateWall(WallTypes.Dialog, "Dialog");
+                    wall = dbContext.Walls.Add(wall);
+                    dbContext.SaveChanges();
                     Dialog dialog = new Dialog()
                     {
                         FirstUserId = firstUserId,
                         SecondUserId = secondUserId,
                         Unread = false
                     };
-                    int count = dbContext.Dialogs.Count();
-                    dialog = dbContext.Dialogs.Add(dialog);
-                    dbContext.SaveChanges();
-                    Wall dialogWall = pageManager.CreateWall(WallTypes.Dialog, "Dialog");
+                    dialog.Wall = wall;
+                    dbContext.Dialogs.Add(dialog);
                     dbContext.SaveChanges();
                     transaction.Commit();
                 }
@@ -67,6 +68,39 @@ namespace MySocialNetwork.DAO
                     throw;
                 }
             }
+        }
+
+        public List<RePostingPoint> GetRePostingPoints(string login)
+        {
+            List<RePostingPoint> points = new List<RePostingPoint>();
+            User user = userManager.GetUserByLogin(login);
+            RePostingPoint mainWall = new RePostingPoint()
+            {
+                Title = "My wall",
+                DestinationWallId = user.Walls.Where(m => m.WallType.Title == WallTypes.Main.ToString()).First().Id
+            };
+            points.Add(mainWall);
+            Dialog dialog;
+            foreach (Friendship friendship in user.Friendships)
+            {
+                int friendId = friendship.FriendId;
+                if (friendId < user.Id)
+                {
+                    dialog = OpenDialog(friendId, user.Id);
+                }
+                else
+                {
+                    dialog = OpenDialog(user.Id, friendId);
+                }
+
+                RePostingPoint point = new RePostingPoint()
+                {
+                    Title = friendship.Friend.FirstName + " " + friendship.Friend.SecondName,
+                    DestinationWallId = dialog.WallId
+                };
+                points.Add(point);
+            }
+            return points;
         }
     }
 }

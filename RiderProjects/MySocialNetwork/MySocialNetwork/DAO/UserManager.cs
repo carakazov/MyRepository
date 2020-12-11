@@ -46,7 +46,7 @@ using MySocialNetwork.DTO;
                     dbContext.SaveChanges();
                     int mainWallTypeId = dbContext.WallTypes.Where(wt => wt.Title == WallTypes.Main.ToString()).First()
                         .Id;
-                    int photoWallTypeId = dbContext.WallTypes.Where(wt => wt.Title == WallTypes.Photos.ToString())
+                    int photoWallTypeId = dbContext.WallTypes.Where(wt => wt.Title == WallTypes.Photo.ToString())
                         .First().Id;
                     Wall mainWall = new Wall()
                     {
@@ -60,6 +60,12 @@ using MySocialNetwork.DTO;
                         WallTypeId = photoWallTypeId,
                         Title = "Avatars"
                     };
+                    FriendshipType commonFriendship = new FriendshipType()
+                    {
+                        Title = "common",
+                        TypeOwnerId = addedUser.Id
+                    };
+                    dbContext.FriendshipTypes.Add(commonFriendship);
                     dbContext.Walls.Add(mainWall);
                     dbContext.Walls.Add(avatarsWall);
                     dbContext.SaveChanges();
@@ -113,6 +119,11 @@ using MySocialNetwork.DTO;
             {
                 throw;
             }
+        }
+
+        public User GetById(int id)
+        {
+            return dbContext.Users.Where(u => u.Id == id).First();
         }
         
         private bool FindCorrectAge(int minAge, int maxAge, DateTime birthday)

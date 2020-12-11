@@ -1,4 +1,14 @@
-﻿<!DOCTYPE html>
+﻿@using MySocialNetwork.DTO
+@using MySocialNetwork.Models.SocialNetwork
+@{
+    UserDto currentUser = new UserDto();
+    if (Session["session"] != null)
+    {
+        currentUser = (UserDto) Session["session"];
+    }
+}
+
+<!DOCTYPE html>
 <html>
 <head>
     <meta charset="utf-8"/>
@@ -20,14 +30,37 @@
             </button>
         </div>
         <div class="navbar-collapse collapse">
-            <ul class="nav navbar-nav">
-                <li>
-                    @Html.ActionLink("Find users", "FindUsers", "Page")
-                </li>
-                <li>
-                    @Html.ActionLink("Friend list", "FriendList", "Friendship")
-                </li>
-            </ul>
+            @{
+                if (Session["session"] != null)
+                {
+                    <ul class="nav navbar-nav">
+                        <li>
+                            @Html.ActionLink("Find users", "FindUsers", "Page")
+                        </li>
+                        <li>
+                            @Html.ActionLink("Friend list", "FriendList", "Friendship")
+                        </li>
+                         <li>
+                             @Html.ActionLink("Friend list (test)", "FriendshipList", "Friendship")
+                             </li>
+                        <li>
+                            @Html.ActionLink("Create album", "CreateWall", "Wall")
+                        </li>
+                        <li>
+                            @Html.ActionLink("Photo albums", "AlbumList", "Wall", new {userId = currentUser.Id, type = ContentTypes.Image}, null)
+                        </li>
+                        <li>
+                            @Html.ActionLink("Music albums", "AlbumList", "Wall", new {userId = currentUser.Id, type = ContentTypes.Audio}, null)
+                        </li>
+                        <li>
+                            @Html.ActionLink("Video albums", "AlbumList", "Wall", new {userId = currentUser.Id, type = ContentTypes.Video}, null)
+                        </li>
+                        <li>
+                            @Html.ActionLink("My groups", "GroupPage", "Group", new {login = currentUser.Login}, null)
+                        </li>
+                    </ul>
+                }
+            }
         </div>
     </div>
 </div>

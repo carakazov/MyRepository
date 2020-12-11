@@ -1,5 +1,6 @@
 ﻿﻿using System.Collections.Generic;
-using System.ComponentModel.DataAnnotations.Schema;
+ using System.ComponentModel.DataAnnotations;
+ using System.ComponentModel.DataAnnotations.Schema;
 
 namespace MySocialNetwork.DAO
 {
@@ -14,12 +15,9 @@ namespace MySocialNetwork.DAO
         public int? OwnerId { get; set; }
         [Column("group_id")]
         public int? GroupId { get; set; }
-        [Column("dialog_id")]
-        public int? DialogId { get; set; }
-        
-        public Dialog Dialog { get; set; }
-        public Group Group { get; set; }
-        public User Owner { get; set; }
+        public virtual Dialog Dialog { get; set; }
+        public virtual Group Group { get; set; }
+        public virtual User Owner { get; set; }
         public WallType WallType { get; set; }
         public ICollection<Post> Posts { get; set; }
 

@@ -3,6 +3,7 @@
 
 @{
     string linkText;
+    UserDto userDto = (UserDto) Session["session"];
 }
 
 <!DOCTYPE html>
@@ -27,7 +28,7 @@
             Friendship type: @friend.FriendshipType
         </p>
         <p>
-            @Html.ActionLink("Dialog", "OpenDialog", "Dialog", new {login = friend.UserInfo.Login}, null)
+            @Html.ActionLink("Dialog", "OpenDialog", "Dialog", new {login = friend.UserInfo.Login, firstUserId = friend.UserInfo.Id, secondUserId = userDto.Id}, null)
         </p>
     }
 </div>
